@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work, Energy & Momentum - Interactive Learning</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .module {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .module h2 {
+            color: #764ba2;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .module h3 {
+            color: #333;
+            margin: 15px 0 10px;
+        }
+
+        /* Pendulum Animation */
+        .pendulum-container {
+            width: 100%;
+            height: 450px;
+            position: relative;
+            background: #f5f5f5;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .pendulum-mount {
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 12px;
+            background: #333;
+            border-radius: 6px;
+        }
+
+        .pendulum {
+            position: absolute;
+            top: 36px;
+            left: 50%;
+            transform-origin: top center;
+            animation: swing 2.5s ease-in-out infinite;
+        }
+
+        .pendulum-string {
+            width: 4px;
+            height: 220px;
+            background: #666;
+            margin-left: -2px;
+        }
+
+        .pendulum-ball {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 50%;
+            margin-left: -30px;
+            margin-top: -5px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        @keyframes swing {
+            0%, 100% { transform: rotate(50deg); }
+            50% { transform: rotate(-50deg); }
+        }
+
+        .pendulum-labels {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .point-label {
+            position: absolute;
+            background: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.85em;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        .point-a {
+            left: 12%;
+            top: 55%;
+            background: #ffeaa7;
+            border: 2px solid #f39c12;
+        }
+
+        .point-b {
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 30px;
+            background: #81ecec;
+            border: 2px solid #00cec9;
+        }
+
+        .point-c {
+            right: 12%;
+            top: 55%;
+            background: #ffeaa7;
+            border: 2px solid #f39c12;
+        }
+
+        .point-label .point-name {
+            font-size: 1.2em;
+            color: #333;
+        }
+
+        .point-label .pe-val { color: #d63031; }
+        .point-label .ke-val { color: #0984e3; }
+
+        /* Work Calculator */
+        .calculator {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .input-group input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+
+        .result {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.5em;
+        }
+
+        .result span {
+            font-size: 2em;
+            display: block;
+            margin-top: 10px;
+        }
+
+        /* Work Angle Visualization */
+        .angle-viz {
+            width: 100%;
+            height: 200px;
+            position: relative;
+            background: #f9f9f9;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .angle-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Speed Comparison Table */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .comparison-table th, .comparison-table td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f5f5f5;
+        }
+
+        .highlight-cell {
+            background: #ffeaa7 !important;
+            font-weight: bold;
+        }
+
+        /* Scenario Cards */
+        .scenario-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .scenario-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .scenario-card:hover {
+            border-color: #667eea;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .scenario-card.selected {
+            border-color: #764ba2;
+            background: #f0e6ff;
+        }
+
+        .scenario-card .icon {
+            font-size: 2em;
+            margin-bottom: 8px;
+        }
+
+        .scenario-card .name {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #333;
+        }
+
+        .scenario-card .specs {
+            font-size: 0.85em;
+            color: #666;
+            margin: 5px 0;
+        }
+
+        .scenario-card .values {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        .scenario-card .momentum-val {
+            background: #74b9ff;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .scenario-card .ke-val {
+            background: #fd79a8;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .comparison-result {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .comparison-result h4 {
+            margin-bottom: 15px;
+        }
+
+        .comparison-bars {
+            display: flex;
+            gap: 20px;
+        }
+
+        .comparison-bar-container {
+            flex: 1;
+        }
+
+        .comparison-bar-container .label {
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+
+        .comparison-bar {
+            height: 30px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .comparison-bar-fill {
+            height: 100%;
+            border-radius: 15px;
+            transition: width 0.5s;
+        }
+
+        .momentum-fill { background: #74b9ff; }
+        .ke-fill { background: #fd79a8; }
+
+        .comparison-detail-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .comparison-detail-table th,
+        .comparison-detail-table td {
+            padding: 12px;
+            text-align: center;
+        }
+
+        .comparison-detail-table th {
+            font-size: 1.1em;
+        }
+
+        .comparison-detail-table .row-label {
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .bar-cell {
+            min-width: 120px;
+        }
+
+        .bar-value {
+            margin-top: 5px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        /* Derivation box */
+        .derivation-box {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .derivation-box h4 {
+            color: #764ba2;
+            margin-bottom: 10px;
+        }
+
+        .derivation-step {
+            padding: 8px 0;
+            border-bottom: 1px dashed #ddd;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .derivation-step:last-child {
+            border-bottom: none;
+        }
+
+        .step-number {
+            background: #667eea;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            flex-shrink: 0;
+        }
+
+        .step-formula {
+            font-family: 'Courier New', monospace;
+            background: #fff;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        /* Appliance list */
+        .appliance-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 15px 0;
+        }
+
+        .appliance-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .appliance-item .icon {
+            font-size: 1.5em;
+        }
+
+        .appliance-item .details {
+            flex: 1;
+        }
+
+        .appliance-item .name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .appliance-item .watts {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .appliance-item input {
+            width: 60px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .appliance-item .remove-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .add-appliance-section {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .add-appliance-btn {
+            background: #f0f0f0;
+            border: 2px dashed #ccc;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+            color: #333;
+        }
+
+        .add-appliance-btn:hover {
+            border-color: #667eea;
+            background: #f0e6ff;
+            color: #333;
+        }
+
+        .total-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .total-section .total-energy {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .total-section .total-cost {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        /* Power Race - Vertical Climbing */
+        .climb-race-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin: 20px 0;
+        }
+
+        .climber {
+            text-align: center;
+        }
+
+        .climber h4 {
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 1.3em;
+        }
+
+        .climber .stats {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .rope-container {
+            position: relative;
+            height: 300px;
+            width: 100px;
+            margin: 0 auto;
+            background: linear-gradient(to bottom, #87CEEB 0%, #87CEEB 20%, #90EE90 100%);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .rope {
+            position: absolute;
+            left: 50%;
+            top: 20px;
+            bottom: 20px;
+            width: 4px;
+            background: #8B4513;
+            transform: translateX(-50%);
+        }
+
+        .stick-figure {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 20px;
+            transition: bottom 0.1s linear;
+        }
+
+        .stick-figure svg {
+            width: 40px;
+            height: 60px;
+        }
+
+        .finish-line {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #d63031;
+        }
+
+        .finish-label {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 0.7em;
+            color: #d63031;
+            font-weight: bold;
+        }
+
+        .power-display {
+            margin-top: 15px;
+            padding: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            color: white;
+        }
+
+        .power-display .power-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .power-display .power-value {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .time-display {
+            margin-top: 10px;
+            font-size: 1.1em;
+            color: #333;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px auto;
+            display: block;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        /* Quiz Section */
+        .quiz-option {
+            display: block;
+            padding: 15px;
+            margin: 10px 0;
+            background: #f5f5f5;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .quiz-option:hover {
+            background: #e8e8e8;
+            border-color: #667eea;
+        }
+
+        .quiz-option.correct {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .quiz-option.incorrect {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+
+        .explanation {
+            padding: 15px;
+            background: #e7f3ff;
+            border-left: 4px solid #667eea;
+            margin-top: 15px;
+            border-radius: 0 8px 8px 0;
+            display: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .calculator, .race-container {
+                grid-template-columns: 1fr;
+            }
+
+            h1 { font-size: 1.8em; }
+        }
+
+        .formula {
+            background: #f0f0f0;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            display: inline-block;
+        }
+
+        .insight-box {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .insight-box strong {
+            color: #d63031;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Work, Energy & Momentum</h1>
+
+        <!-- Module 1: Understanding Work -->
+        <div class="module">
+            <h2>1. What is Work?</h2>
+            <p>In physics, <strong>Work</strong> is done when a force causes displacement. The key formula is:</p>
+            <div class="formula">W = F × s × cos(θ)</div>
+
+            <h3>Interactive Work Calculator</h3>
+            <div class="calculator">
+                <div>
+                    <div class="input-group">
+                        <label>Force (N):</label>
+                        <input type="number" id="force" value="10" oninput="calculateWork()">
+                    </div>
+                    <div class="input-group">
+                        <label>Displacement (m):</label>
+                        <input type="number" id="displacement" value="5" oninput="calculateWork()">
+                    </div>
+                    <div class="input-group">
+                        <label>Angle (degrees): <span id="angleValue">0</span>°</label>
+                        <input type="range" id="angle" min="0" max="90" value="0" oninput="calculateWork()">
+                    </div>
+                </div>
+                <div class="result">
+                    Work Done
+                    <span id="workResult">50 J</span>
+                </div>
+            </div>
+
+            <canvas id="angleCanvas" class="angle-viz" width="400" height="200"></canvas>
+
+            <div class="insight-box">
+                <strong>Key Insight:</strong> When θ = 90° (force perpendicular to motion), NO work is done!
+                This is why carrying a bucket while walking horizontally does zero work on the bucket.
+            </div>
+        </div>
+
+        <!-- Module 2: Energy Conservation -->
+        <div class="module">
+            <h2>2. Conservation of Energy - The Pendulum</h2>
+            <p>Watch how energy transforms between Potential Energy (PE) and Kinetic Energy (KE):</p>
+
+            <div class="pendulum-container">
+                <div class="pendulum-mount"></div>
+                <div class="pendulum">
+                    <div class="pendulum-string"></div>
+                    <div class="pendulum-ball"></div>
+                </div>
+                <div class="pendulum-labels">
+                    <div class="point-label point-a">
+                        <div class="point-name">Point A</div>
+                        <div class="pe-val">PE = MAX</div>
+                        <div class="ke-val">KE = 0</div>
+                        <div>v = 0</div>
+                    </div>
+                    <div class="point-label point-b">
+                        <div class="point-name">Point B</div>
+                        <div class="pe-val">PE = MIN</div>
+                        <div class="ke-val">KE = MAX</div>
+                        <div>v = MAX</div>
+                    </div>
+                    <div class="point-label point-c">
+                        <div class="point-name">Point C</div>
+                        <div class="pe-val">PE = MAX</div>
+                        <div class="ke-val">KE = 0</div>
+                        <div>v = 0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="insight-box">
+                <strong>Total Energy stays constant!</strong> PE + KE = constant.
+                The ball can never swing higher than its starting point.
+            </div>
+        </div>
+
+        <!-- Module 3: Momentum vs Kinetic Energy -->
+        <div class="module">
+            <h2>3. Momentum vs Kinetic Energy</h2>
+            <p>These are often confused! Let's see the difference:</p>
+
+            <div class="formula">Momentum: p = m × v</div>
+            <div class="formula">Kinetic Energy: KE = ½ × m × v²</div>
+
+            <h3>Real-World Comparisons - Click any two to compare!</h3>
+            <div class="scenario-grid">
+                <div class="scenario-card" onclick="selectScenario(this, 'bullet')" data-mass="0.01" data-speed="700">
+                    <div class="icon">🔫</div>
+                    <div class="name">Bullet</div>
+                    <div class="specs">Mass: 10g | Speed: 700 m/s</div>
+                    <div class="values">
+                        <span class="momentum-val">p = 7</span>
+                        <span class="ke-val">KE = 2,450 J</span>
+                    </div>
+                </div>
+                <div class="scenario-card" onclick="selectScenario(this, 'cricket')" data-mass="0.16" data-speed="40">
+                    <div class="icon">🏏</div>
+                    <div class="name">Cricket Ball</div>
+                    <div class="specs">Mass: 160g | Speed: 40 m/s</div>
+                    <div class="values">
+                        <span class="momentum-val">p = 6.4</span>
+                        <span class="ke-val">KE = 128 J</span>
+                    </div>
+                </div>
+                <div class="scenario-card" onclick="selectScenario(this, 'car')" data-mass="1000" data-speed="20">
+                    <div class="icon">🚗</div>
+                    <div class="name">Car (City)</div>
+                    <div class="specs">Mass: 1000 kg | Speed: 20 m/s (72 km/h)</div>
+                    <div class="values">
+                        <span class="momentum-val">p = 20,000</span>
+                        <span class="ke-val">KE = 200,000 J</span>
+                    </div>
+                </div>
+                <div class="scenario-card" onclick="selectScenario(this, 'train')" data-mass="500000" data-speed="30">
+                    <div class="icon">🚂</div>
+                    <div class="name">Train</div>
+                    <div class="specs">Mass: 500,000 kg | Speed: 30 m/s (108 km/h)</div>
+                    <div class="values">
+                        <span class="momentum-val">p = 15,000,000</span>
+                        <span class="ke-val">KE = 225,000,000 J</span>
+                    </div>
+                </div>
+                <div class="scenario-card" onclick="selectScenario(this, 'plane')" data-mass="80000" data-speed="250">
+                    <div class="icon">✈️</div>
+                    <div class="name">Aeroplane</div>
+                    <div class="specs">Mass: 80,000 kg | Speed: 250 m/s (900 km/h)</div>
+                    <div class="values">
+                        <span class="momentum-val">p = 20,000,000</span>
+                        <span class="ke-val">KE = 2,500,000,000 J</span>
+                    </div>
+                </div>
+                <div class="scenario-card" onclick="selectScenario(this, 'satellite')" data-mass="1000" data-speed="7800">
+                    <div class="icon">🛰️</div>
+                    <div class="name">Satellite</div>
+                    <div class="specs">Mass: 1000 kg | Speed: 7,800 m/s</div>
+                    <div class="values">
+                        <span class="momentum-val">p = 7,800,000</span>
+                        <span class="ke-val">KE = 30,420,000,000 J</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="comparison-result" id="comparisonResult">
+                <h4>Comparison</h4>
+                <div class="comparison-table-container">
+                    <table class="comparison-detail-table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th><span id="icon1"></span> <span id="name1"></span></th>
+                                <th><span id="icon2"></span> <span id="name2"></span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="row-label">Momentum (p = mv)</td>
+                                <td>
+                                    <div class="bar-cell">
+                                        <div class="comparison-bar">
+                                            <div class="comparison-bar-fill momentum-fill" id="momentumBar1" style="width: 0%"></div>
+                                        </div>
+                                        <div class="bar-value" id="momentumVal1"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="bar-cell">
+                                        <div class="comparison-bar">
+                                            <div class="comparison-bar-fill momentum-fill" id="momentumBar2" style="width: 0%"></div>
+                                        </div>
+                                        <div class="bar-value" id="momentumVal2"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="row-label">Kinetic Energy (KE = ½mv²)</td>
+                                <td>
+                                    <div class="bar-cell">
+                                        <div class="comparison-bar">
+                                            <div class="comparison-bar-fill ke-fill" id="keBar1" style="width: 0%"></div>
+                                        </div>
+                                        <div class="bar-value" id="keVal1"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="bar-cell">
+                                        <div class="comparison-bar">
+                                            <div class="comparison-bar-fill ke-fill" id="keBar2" style="width: 0%"></div>
+                                        </div>
+                                        <div class="bar-value" id="keVal2"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p id="comparisonInsight" style="margin-top: 15px; font-style: italic;"></p>
+            </div>
+
+            <h3>The v² Effect - Why Speed Kills</h3>
+            <table class="comparison-table">
+                <tr>
+                    <th>Speed</th>
+                    <th>Momentum</th>
+                    <th>Kinetic Energy</th>
+                    <th>Braking Distance</th>
+                </tr>
+                <tr>
+                    <td>10 m/s</td>
+                    <td>10,000</td>
+                    <td>50,000 J</td>
+                    <td>1x</td>
+                </tr>
+                <tr>
+                    <td>20 m/s</td>
+                    <td>20,000 (2×)</td>
+                    <td class="highlight-cell">200,000 J (4×)</td>
+                    <td class="highlight-cell">4x</td>
+                </tr>
+                <tr>
+                    <td>30 m/s</td>
+                    <td>30,000 (3×)</td>
+                    <td class="highlight-cell">450,000 J (9×)</td>
+                    <td class="highlight-cell">9x</td>
+                </tr>
+            </table>
+
+            <div class="insight-box">
+                <strong>Double your speed = 4x the braking distance!</strong>
+                This is why highway accidents are so dangerous.
+            </div>
+        </div>
+
+        <!-- Module 4: Power Race -->
+        <div class="module">
+            <h2>4. Power - The Rate of Doing Work</h2>
+
+            <div class="derivation-box">
+                <h4>Deriving Time from Power</h4>
+                <div class="derivation-step">
+                    <span class="step-number">1</span>
+                    <span>Work done against gravity:</span>
+                    <span class="step-formula">W = F × h = Weight × Height</span>
+                </div>
+                <div class="derivation-step">
+                    <span class="step-number">2</span>
+                    <span>Power is work per unit time:</span>
+                    <span class="step-formula">P = W / t</span>
+                </div>
+                <div class="derivation-step">
+                    <span class="step-number">3</span>
+                    <span>Rearranging for time:</span>
+                    <span class="step-formula">t = W / P = (Weight × Height) / Power</span>
+                </div>
+            </div>
+
+            <h3>The Rope Climbing Race</h3>
+            <p>Set the power for each climber and see how long they take to climb!</p>
+
+            <div class="climb-race-container">
+                <div class="climber">
+                    <h4>Priya</h4>
+                    <div class="stats">
+                        Weight: 400 N | Height: 8 m<br>
+                        Work = 400 × 8 = <strong>3200 J</strong>
+                    </div>
+                    <div class="input-group" style="margin: 10px 0;">
+                        <label>Power (W): </label>
+                        <input type="number" id="powerA" value="160" style="width: 80px; padding: 5px;" oninput="updateClimbTime()">
+                    </div>
+                    <div class="rope-container">
+                        <div class="rope"></div>
+                        <div class="finish-line"></div>
+                        <div class="finish-label">8m</div>
+                        <div class="stick-figure" id="climberA">
+                            <svg viewBox="0 0 40 60">
+                                <circle cx="20" cy="8" r="7" fill="#f5576c" stroke="#333" stroke-width="1"/>
+                                <line x1="20" y1="15" x2="20" y2="35" stroke="#333" stroke-width="2"/>
+                                <line x1="20" y1="20" x2="10" y2="12" stroke="#333" stroke-width="2"/>
+                                <line x1="20" y1="20" x2="30" y2="12" stroke="#333" stroke-width="2"/>
+                                <line x1="20" y1="35" x2="12" y2="50" stroke="#333" stroke-width="2"/>
+                                <line x1="20" y1="35" x2="28" y2="50" stroke="#333" stroke-width="2"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="power-display">
+                        <div class="power-label">Time to climb (t = W/P)</div>
+                        <div class="power-value"><span id="calcTimeA">20.0</span> s</div>
+                    </div>
+                    <div class="time-display">Elapsed: <span id="timeA">0.0</span>s</div>
+                </div>
+
+                <div class="climber">
+                    <h4>Ananya</h4>
+                    <div class="stats">
+                        Weight: 400 N | Height: 8 m<br>
+                        Work = 400 × 8 = <strong>3200 J</strong>
+                    </div>
+                    <div class="input-group" style="margin: 10px 0;">
+                        <label>Power (W): </label>
+                        <input type="number" id="powerB" value="64" style="width: 80px; padding: 5px;" oninput="updateClimbTime()">
+                    </div>
+                    <div class="rope-container">
+                        <div class="rope"></div>
+                        <div class="finish-line"></div>
+                        <div class="finish-label">8m</div>
+                        <div class="stick-figure" id="climberB">
+                            <svg viewBox="0 0 40 60">
+                                <circle cx="20" cy="8" r="7" fill="#4facfe" stroke="#333" stroke-width="1"/>
+                                <line x1="20" y1="15" x2="20" y2="35" stroke="#333" stroke-width="2"/>
+                                <line x1="20" y1="20" x2="10" y2="12" stroke="#333" stroke-width="2"/>
+                                <line x1="20" y1="20" x2="30" y2="12" stroke="#333" stroke-width="2"/>
+                                <line x1="20" y1="35" x2="12" y2="50" stroke="#333" stroke-width="2"/>
+                                <line x1="20" y1="35" x2="28" y2="50" stroke="#333" stroke-width="2"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="power-display">
+                        <div class="power-label">Time to climb (t = W/P)</div>
+                        <div class="power-value"><span id="calcTimeB">50.0</span> s</div>
+                    </div>
+                    <div class="time-display">Elapsed: <span id="timeB">0.0</span>s</div>
+                </div>
+            </div>
+
+            <button onclick="startRace()">Start Climbing Race!</button>
+
+            <div class="insight-box">
+                <strong>Try it!</strong> Change the power values above and see how time changes.
+                Higher power = less time to do the same work (3200 J).
+            </div>
+        </div>
+
+        <!-- Module 5: Quick Quiz -->
+        <div class="module">
+            <h2>5. Test Your Understanding</h2>
+
+            <h3>Question: The Tired Statue Puzzle</h3>
+            <p>You hold a heavy suitcase above your head for 30 minutes. You're sweating and exhausted.
+            How much work did you do on the suitcase according to Physics?</p>
+
+            <div class="quiz-option" onclick="checkAnswer(this, false)">
+                A) A lot - I'm exhausted!
+            </div>
+            <div class="quiz-option" onclick="checkAnswer(this, false)">
+                B) 30 × weight of suitcase
+            </div>
+            <div class="quiz-option" onclick="checkAnswer(this, true)">
+                C) Zero Joules
+            </div>
+            <div class="quiz-option" onclick="checkAnswer(this, false)">
+                D) Cannot be determined
+            </div>
+
+            <div class="explanation" id="quizExplanation">
+                <strong>Correct! Zero Joules.</strong><br><br>
+                Work = Force × Displacement<br>
+                Since the suitcase didn't move (displacement = 0), no work was done on it!<br><br>
+                Your muscles are tired because of physiological processes (converting chemical energy),
+                not because you did physical work on the suitcase. This is the difference between
+                "feeling tired" and "doing work" in physics!
+            </div>
+        </div>
+
+        <!-- Module 6: Energy Calculator -->
+        <div class="module">
+            <h2>6. Electricity Bill Calculator</h2>
+            <p>Add appliances to calculate your daily electricity cost:</p>
+
+            <div class="formula">Energy (kWh) = Power (W) × Hours / 1000</div>
+
+            <h3>Add Appliances</h3>
+            <div class="add-appliance-section">
+                <button class="add-appliance-btn" onclick="addAppliance('bulb', 'LED Bulb', 10, '💡')">💡 LED Bulb (10W)</button>
+                <button class="add-appliance-btn" onclick="addAppliance('cfl', 'CFL Bulb', 20, '💡')">💡 CFL (20W)</button>
+                <button class="add-appliance-btn" onclick="addAppliance('fan', 'Ceiling Fan', 75, '🌀')">🌀 Fan (75W)</button>
+                <button class="add-appliance-btn" onclick="addAppliance('tv', 'Television', 100, '📺')">📺 TV (100W)</button>
+                <button class="add-appliance-btn" onclick="addAppliance('fridge', 'Refrigerator', 150, '🧊')">🧊 Fridge (150W)</button>
+                <button class="add-appliance-btn" onclick="addAppliance('ac', 'Air Conditioner', 1500, '❄️')">❄️ AC (1500W)</button>
+                <button class="add-appliance-btn" onclick="addAppliance('heater', 'Water Heater', 2000, '🔥')">🔥 Heater (2000W)</button>
+                <button class="add-appliance-btn" onclick="addAppliance('iron', 'Iron', 1000, '👔')">👔 Iron (1000W)</button>
+                <button class="add-appliance-btn" onclick="addAppliance('computer', 'Computer', 200, '💻')">💻 Computer (200W)</button>
+                <button class="add-appliance-btn" onclick="addAppliance('washing', 'Washing Machine', 500, '🧺')">🧺 Washer (500W)</button>
+            </div>
+
+            <h3>Your Appliances</h3>
+            <div class="appliance-list" id="applianceList">
+                <p style="color: #999; text-align: center; padding: 20px;">Click buttons above to add appliances</p>
+            </div>
+
+            <div class="input-group">
+                <label>Cost per unit (Rs):</label>
+                <input type="number" id="costPerUnit" value="5" oninput="calculateTotalBill()" style="width: 100px;">
+            </div>
+
+            <div class="total-section">
+                <div class="total-energy">Total Energy: <span id="totalEnergy">0</span> kWh/day</div>
+                <div class="total-cost">Daily Cost: Rs. <span id="totalCost">0</span></div>
+                <div style="margin-top: 10px; font-size: 0.9em; opacity: 0.9;">
+                    Monthly (30 days): Rs. <span id="monthlyCost">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Work Calculator
+        function calculateWork() {
+            const force = parseFloat(document.getElementById('force').value) || 0;
+            const displacement = parseFloat(document.getElementById('displacement').value) || 0;
+            const angle = parseFloat(document.getElementById('angle').value) || 0;
+
+            document.getElementById('angleValue').textContent = angle;
+
+            const radians = angle * Math.PI / 180;
+            const work = force * displacement * Math.cos(radians);
+
+            document.getElementById('workResult').textContent = work.toFixed(1) + ' J';
+
+            drawAngleDiagram(angle);
+        }
+
+        // Draw angle visualization
+        function drawAngleDiagram(angle) {
+            const canvas = document.getElementById('angleCanvas');
+            const ctx = canvas.getContext('2d');
+
+            // Set canvas size
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const length = 80;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw block
+            ctx.fillStyle = '#667eea';
+            ctx.fillRect(centerX - 30, centerY - 20, 60, 40);
+
+            // Draw displacement arrow (horizontal)
+            ctx.strokeStyle = '#28a745';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(centerX + 30, centerY);
+            ctx.lineTo(centerX + 130, centerY);
+            ctx.stroke();
+
+            // Arrow head
+            ctx.beginPath();
+            ctx.moveTo(centerX + 130, centerY);
+            ctx.lineTo(centerX + 120, centerY - 8);
+            ctx.lineTo(centerX + 120, centerY + 8);
+            ctx.fillStyle = '#28a745';
+            ctx.fill();
+
+            // Draw force arrow at angle
+            const radians = angle * Math.PI / 180;
+            const endX = centerX - 30 - length * Math.cos(radians);
+            const endY = centerY - length * Math.sin(radians);
+
+            ctx.strokeStyle = '#dc3545';
+            ctx.beginPath();
+            ctx.moveTo(centerX - 30, centerY);
+            ctx.lineTo(endX, endY);
+            ctx.stroke();
+
+            // Force arrow head
+            ctx.beginPath();
+            ctx.moveTo(endX, endY);
+            ctx.lineTo(endX + 15 * Math.cos(radians - 0.3), endY + 15 * Math.sin(radians - 0.3));
+            ctx.lineTo(endX + 15 * Math.cos(radians + 0.3), endY + 15 * Math.sin(radians + 0.3));
+            ctx.fillStyle = '#dc3545';
+            ctx.fill();
+
+            // Labels
+            ctx.font = '14px Arial';
+            ctx.fillStyle = '#28a745';
+            ctx.fillText('Displacement', centerX + 60, centerY + 25);
+
+            ctx.fillStyle = '#dc3545';
+            ctx.fillText('Force', endX - 40, endY - 10);
+
+            // Angle arc
+            if (angle > 0) {
+                ctx.strokeStyle = '#764ba2';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(centerX - 30, centerY, 30, Math.PI, Math.PI + radians, true);
+                ctx.stroke();
+                ctx.fillStyle = '#764ba2';
+                ctx.fillText(angle + '°', centerX - 70, centerY - 10);
+            }
+        }
+
+        // Scenario comparison for Momentum vs KE
+        let selectedScenarios = [];
+        const scenarioNames = {
+            'bullet': 'Bullet',
+            'cricket': 'Cricket Ball',
+            'car': 'Car',
+            'train': 'Train',
+            'plane': 'Aeroplane',
+            'satellite': 'Satellite'
+        };
+
+        function selectScenario(element, name) {
+            const mass = parseFloat(element.dataset.mass);
+            const speed = parseFloat(element.dataset.speed);
+            const momentum = mass * speed;
+            const ke = 0.5 * mass * speed * speed;
+
+            // Check if already selected
+            const index = selectedScenarios.findIndex(s => s.name === name);
+            if (index !== -1) {
+                selectedScenarios.splice(index, 1);
+                element.classList.remove('selected');
+            } else {
+                if (selectedScenarios.length >= 2) {
+                    // Remove oldest selection
+                    const oldCard = document.querySelector(`[onclick*="'${selectedScenarios[0].name}'"]`);
+                    if (oldCard) oldCard.classList.remove('selected');
+                    selectedScenarios.shift();
+                }
+                selectedScenarios.push({ name, mass, speed, momentum, ke });
+                element.classList.add('selected');
+            }
+
+            // Update comparison display
+            if (selectedScenarios.length === 2) {
+                showComparison();
+            } else {
+                document.getElementById('comparisonResult').style.display = 'none';
+            }
+        }
+
+        const scenarioIcons = {
+            'bullet': '🔫',
+            'cricket': '🏏',
+            'car': '🚗',
+            'train': '🚂',
+            'plane': '✈️',
+            'satellite': '🛰️'
+        };
+
+        function formatNumber(num) {
+            if (num >= 1e9) return (num / 1e9).toFixed(1) + 'B';
+            if (num >= 1e6) return (num / 1e6).toFixed(1) + 'M';
+            if (num >= 1e3) return (num / 1e3).toFixed(1) + 'K';
+            return num.toFixed(1);
+        }
+
+        function showComparison() {
+            const s1 = selectedScenarios[0];
+            const s2 = selectedScenarios[1];
+
+            // Set icons and names
+            document.getElementById('icon1').textContent = scenarioIcons[s1.name];
+            document.getElementById('name1').textContent = scenarioNames[s1.name];
+            document.getElementById('icon2').textContent = scenarioIcons[s2.name];
+            document.getElementById('name2').textContent = scenarioNames[s2.name];
+
+            const maxMomentum = Math.max(s1.momentum, s2.momentum);
+            const maxKE = Math.max(s1.ke, s2.ke);
+
+            document.getElementById('momentumBar1').style.width = (s1.momentum / maxMomentum * 100) + '%';
+            document.getElementById('momentumBar2').style.width = (s2.momentum / maxMomentum * 100) + '%';
+            document.getElementById('keBar1').style.width = (s1.ke / maxKE * 100) + '%';
+            document.getElementById('keBar2').style.width = (s2.ke / maxKE * 100) + '%';
+
+            // Set values
+            document.getElementById('momentumVal1').textContent = formatNumber(s1.momentum) + ' kg·m/s';
+            document.getElementById('momentumVal2').textContent = formatNumber(s2.momentum) + ' kg·m/s';
+            document.getElementById('keVal1').textContent = formatNumber(s1.ke) + ' J';
+            document.getElementById('keVal2').textContent = formatNumber(s2.ke) + ' J';
+
+            // Generate insight
+            let insight = '';
+            if (s1.momentum > s2.momentum && s1.ke < s2.ke) {
+                insight = `${scenarioNames[s1.name]} has more momentum but less kinetic energy than ${scenarioNames[s2.name]}!`;
+            } else if (s1.momentum < s2.momentum && s1.ke > s2.ke) {
+                insight = `${scenarioNames[s1.name]} has less momentum but more kinetic energy! This shows how v² makes KE grow faster.`;
+            } else {
+                const momentumRatio = (s1.momentum / s2.momentum).toFixed(1);
+                const keRatio = (s1.ke / s2.ke).toFixed(1);
+                insight = `${scenarioNames[s1.name]} has ${momentumRatio}x the momentum and ${keRatio}x the kinetic energy of ${scenarioNames[s2.name]}.`;
+            }
+            document.getElementById('comparisonInsight').textContent = insight;
+
+            document.getElementById('comparisonResult').style.display = 'block';
+        }
+
+        // Update climb time based on power
+        function updateClimbTime() {
+            const work = 3200; // 400N × 8m
+            const powerA = parseFloat(document.getElementById('powerA').value) || 1;
+            const powerB = parseFloat(document.getElementById('powerB').value) || 1;
+
+            const timeA = work / powerA;
+            const timeB = work / powerB;
+
+            document.getElementById('calcTimeA').textContent = timeA.toFixed(1);
+            document.getElementById('calcTimeB').textContent = timeB.toFixed(1);
+        }
+
+        // Power Race Animation - Vertical Climbing
+        let raceInterval = null;
+        function startRace() {
+            // Reset
+            if (raceInterval) {
+                clearInterval(raceInterval);
+            }
+
+            const work = 3200;
+            const powerA = parseFloat(document.getElementById('powerA').value) || 160;
+            const powerB = parseFloat(document.getElementById('powerB').value) || 64;
+            const totalTimeA = work / powerA;
+            const totalTimeB = work / powerB;
+
+            let progressA = 0;
+            let progressB = 0;
+            let timeElapsed = 0;
+            const maxHeight = 220; // pixels to climb
+            const speedA = maxHeight / totalTimeA;
+            const speedB = maxHeight / totalTimeB;
+
+            document.getElementById('climberA').style.bottom = '20px';
+            document.getElementById('climberB').style.bottom = '20px';
+            document.getElementById('timeA').textContent = '0.0';
+            document.getElementById('timeB').textContent = '0.0';
+
+            let finishedA = false;
+            let finishedB = false;
+
+            raceInterval = setInterval(() => {
+                timeElapsed += 0.1;
+
+                if (!finishedA) {
+                    progressA = Math.min(maxHeight, progressA + speedA * 0.1);
+                    document.getElementById('climberA').style.bottom = (20 + progressA) + 'px';
+                    document.getElementById('timeA').textContent = Math.min(totalTimeA, timeElapsed).toFixed(1);
+                    if (progressA >= maxHeight) finishedA = true;
+                }
+
+                if (!finishedB) {
+                    progressB = Math.min(maxHeight, progressB + speedB * 0.1);
+                    document.getElementById('climberB').style.bottom = (20 + progressB) + 'px';
+                    document.getElementById('timeB').textContent = Math.min(totalTimeB, timeElapsed).toFixed(1);
+                    if (progressB >= maxHeight) finishedB = true;
+                }
+
+                if (finishedA && finishedB) {
+                    clearInterval(raceInterval);
+                }
+            }, 100);
+        }
+
+        // Quiz
+        function checkAnswer(element, isCorrect) {
+            // Reset all options
+            document.querySelectorAll('.quiz-option').forEach(opt => {
+                opt.classList.remove('correct', 'incorrect');
+            });
+
+            if (isCorrect) {
+                element.classList.add('correct');
+            } else {
+                element.classList.add('incorrect');
+            }
+
+            document.getElementById('quizExplanation').style.display = 'block';
+        }
+
+        // Appliance Management
+        let appliances = [];
+        let applianceId = 0;
+
+        function addAppliance(type, name, watts, icon) {
+            applianceId++;
+            appliances.push({
+                id: applianceId,
+                type: type,
+                name: name,
+                watts: watts,
+                icon: icon,
+                hours: 1
+            });
+            renderAppliances();
+            calculateTotalBill();
+        }
+
+        function removeAppliance(id) {
+            appliances = appliances.filter(a => a.id !== id);
+            renderAppliances();
+            calculateTotalBill();
+        }
+
+        function updateApplianceHours(id, hours) {
+            const appliance = appliances.find(a => a.id === id);
+            if (appliance) {
+                appliance.hours = parseFloat(hours) || 0;
+                calculateTotalBill();
+            }
+        }
+
+        function renderAppliances() {
+            const list = document.getElementById('applianceList');
+            if (appliances.length === 0) {
+                list.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">Click buttons above to add appliances</p>';
+                return;
+            }
+
+            list.innerHTML = appliances.map(a => `
+                <div class="appliance-item">
+                    <span class="icon">${a.icon}</span>
+                    <div class="details">
+                        <div class="name">${a.name}</div>
+                        <div class="watts">${a.watts} W</div>
+                    </div>
+                    <div>
+                        <input type="number" value="${a.hours}" min="0" max="24"
+                               onchange="updateApplianceHours(${a.id}, this.value)"> hrs
+                    </div>
+                    <button class="remove-btn" onclick="removeAppliance(${a.id})">×</button>
+                </div>
+            `).join('');
+        }
+
+        function calculateTotalBill() {
+            const costPerUnit = parseFloat(document.getElementById('costPerUnit').value) || 0;
+
+            let totalEnergy = 0;
+            appliances.forEach(a => {
+                totalEnergy += (a.watts * a.hours) / 1000;
+            });
+
+            const dailyCost = totalEnergy * costPerUnit;
+            const monthlyCost = dailyCost * 30;
+
+            document.getElementById('totalEnergy').textContent = totalEnergy.toFixed(2);
+            document.getElementById('totalCost').textContent = dailyCost.toFixed(2);
+            document.getElementById('monthlyCost').textContent = monthlyCost.toFixed(2);
+        }
+
+        // Initialize
+        window.onload = function() {
+            calculateWork();
+            updateClimbTime();
+            calculateTotalBill();
+        };
+
+        // Redraw on resize
+        window.onresize = function() {
+            const angle = parseFloat(document.getElementById('angle').value) || 0;
+            drawAngleDiagram(angle);
+        };
+    </script>
+</body>
+</html>
