@@ -742,6 +742,8 @@
 
             <canvas id="angleCanvas" class="angle-viz" width="400" height="200"></canvas>
 
+            <button onclick="toggleAnimation()" id="animateBtn" style="margin-top: 10px;">Start Animation</button>
+
             <div class="insight-box">
                 <strong>Key Insight:</strong> When θ = 90° (force perpendicular to motion), NO work is done!
                 This is why carrying a bucket while walking horizontally does zero work on the bucket.
@@ -1132,7 +1134,10 @@
             drawAngleDiagram(angle);
         }
 
-        // Draw angle visualization
+        // Draw angle visualization with animation
+        let blockPosition = 0;
+        let animationId = null;
+
         function drawAngleDiagram(angle) {
             const canvas = document.getElementById('angleCanvas');
             const ctx = canvas.getContext('2d');
@@ -1141,68 +1146,124 @@
             canvas.width = canvas.offsetWidth;
             canvas.height = canvas.offsetHeight;
 
-            const centerX = canvas.width / 2;
+            const startX = canvas.width / 4;
             const centerY = canvas.height / 2;
             const length = 80;
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Draw block
-            ctx.fillStyle = '#667eea';
-            ctx.fillRect(centerX - 30, centerY - 20, 60, 40);
+            // Draw ground line
+            ctx.strokeStyle = '#ccc';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(20, centerY + 20);
+            ctx.lineTo(canvas.width - 20, centerY + 20);
+            ctx.stroke();
 
-            // Draw displacement arrow (horizontal)
+            // Draw block at animated position
+            const blockX = startX + blockPosition;
+            ctx.fillStyle = '#667eea';
+            ctx.fillRect(blockX - 30, centerY - 20, 60, 40);
+
+            // Draw displacement arrow (horizontal, showing where block will go)
             ctx.strokeStyle = '#28a745';
             ctx.lineWidth = 3;
             ctx.beginPath();
-            ctx.moveTo(centerX + 30, centerY);
-            ctx.lineTo(centerX + 130, centerY);
+            ctx.moveTo(blockX + 30, centerY + 35);
+            ctx.lineTo(blockX + 130, centerY + 35);
             ctx.stroke();
 
-            // Arrow head
+            // Displacement arrow head
             ctx.beginPath();
-            ctx.moveTo(centerX + 130, centerY);
-            ctx.lineTo(centerX + 120, centerY - 8);
-            ctx.lineTo(centerX + 120, centerY + 8);
+            ctx.moveTo(blockX + 130, centerY + 35);
+            ctx.lineTo(blockX + 120, centerY + 27);
+            ctx.lineTo(blockX + 120, centerY + 43);
             ctx.fillStyle = '#28a745';
             ctx.fill();
 
-            // Draw force arrow at angle
+            // Draw force arrow at angle (pointing in direction of motion)
             const radians = angle * Math.PI / 180;
-            const endX = centerX - 30 - length * Math.cos(radians);
-            const endY = centerY - length * Math.sin(radians);
+            const forceStartX = blockX - 35;
+            const forceStartY = centerY;
+            const endX = forceStartX - length * Math.cos(radians);
+            const endY = forceStartY - length * Math.sin(radians);
 
             ctx.strokeStyle = '#dc3545';
-            ctx.beginPath();
-            ctx.moveTo(centerX - 30, centerY);
-            ctx.lineTo(endX, endY);
-            ctx.stroke();
-
-            // Force arrow head
+            ctx.lineWidth = 3;
             ctx.beginPath();
             ctx.moveTo(endX, endY);
-            ctx.lineTo(endX + 15 * Math.cos(radians - 0.3), endY + 15 * Math.sin(radians - 0.3));
-            ctx.lineTo(endX + 15 * Math.cos(radians + 0.3), endY + 15 * Math.sin(radians + 0.3));
+            ctx.lineTo(forceStartX, forceStartY);
+            ctx.stroke();
+
+            // Force arrow head (pointing toward block/direction of motion)
+            const arrowAngle = Math.atan2(forceStartY - endY, forceStartX - endX);
+            ctx.beginPath();
+            ctx.moveTo(forceStartX, forceStartY);
+            ctx.lineTo(forceStartX - 12 * Math.cos(arrowAngle - 0.4), forceStartY - 12 * Math.sin(arrowAngle - 0.4));
+            ctx.lineTo(forceStartX - 12 * Math.cos(arrowAngle + 0.4), forceStartY - 12 * Math.sin(arrowAngle + 0.4));
             ctx.fillStyle = '#dc3545';
             ctx.fill();
 
             // Labels
             ctx.font = '14px Arial';
             ctx.fillStyle = '#28a745';
-            ctx.fillText('Displacement', centerX + 60, centerY + 25);
+            ctx.fillText('Displacement', blockX + 60, centerY + 55);
 
             ctx.fillStyle = '#dc3545';
-            ctx.fillText('Force', endX - 40, endY - 10);
+            ctx.fillText('Force', endX - 40, endY - 5);
 
             // Angle arc
             if (angle > 0) {
                 ctx.strokeStyle = '#764ba2';
                 ctx.lineWidth = 2;
                 ctx.beginPath();
-                ctx.arc(centerX - 30, centerY, 30, Math.PI, Math.PI + radians, true);
+                ctx.arc(forceStartX, forceStartY, 30, Math.PI, Math.PI + radians, true);
                 ctx.stroke();
                 ctx.fillStyle = '#764ba2';
-                ctx.fillText(angle + '°', centerX - 70, centerY - 10);
+                ctx.fillText(angle + '°', forceStartX - 60, forceStartY - 15);
+            }
+        }
+
+        // Animate block movement
+        function animateBlock() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+
+            blockPosition = 0;
+            const maxPosition = 100;
+            const angle = parseFloat(document.getElementById('angle').value) || 0;
+
+            function animate() {
+                blockPosition += 2;
+                if (blockPosition > maxPosition) {
+                    blockPosition = 0;
+                }
+                drawAngleDiagram(angle);
+                animationId = requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        // Start/stop animation button
+        let isAnimating = false;
+
+        function toggleAnimation() {
+            const btn = document.getElementById('animateBtn');
+            if (isAnimating) {
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
+                blockPosition = 0;
+                const angle = parseFloat(document.getElementById('angle').value) || 0;
+                drawAngleDiagram(angle);
+                btn.textContent = 'Start Animation';
+                isAnimating = false;
+            } else {
+                animateBlock();
+                btn.textContent = 'Stop Animation';
+                isAnimating = true;
             }
         }
 
