@@ -1231,15 +1231,20 @@
             }
 
             blockPosition = 0;
-            const maxPosition = 100;
+            const maxPosition = 200;
             const angle = parseFloat(document.getElementById('angle').value) || 0;
+            let frameCount = 0;
 
             function animate() {
-                blockPosition += 2;
-                if (blockPosition > maxPosition) {
-                    blockPosition = 0;
+                frameCount++;
+                // Only update every 3rd frame for slower movement
+                if (frameCount % 3 === 0) {
+                    blockPosition += 1;
+                    if (blockPosition > maxPosition) {
+                        blockPosition = 0;
+                    }
+                    drawAngleDiagram(angle);
                 }
-                drawAngleDiagram(angle);
                 animationId = requestAnimationFrame(animate);
             }
             animate();
